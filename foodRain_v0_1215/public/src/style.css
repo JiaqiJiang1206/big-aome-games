@@ -1,0 +1,166 @@
+.scoreboard {
+    float: left;
+    position: absolute;
+    z-index: 999;
+    max-width: 450px;
+    padding: 20px;
+    top: 16px;
+    left: 16px;
+    background-image: url(../assets/top-right-brown.png), 
+    url(../assets/top-left-brown.png),
+    url(../assets/bottom-right-brown.png), 
+    url(../assets/bottom-left-brown.png);
+    background-position: top right, top left, bottom right, bottom left;
+    background-repeat: no-repeat;
+  }
+  
+  .scoreboard:before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: 10px;
+    display: block;
+    width: calc(100% - 20px);
+    height: calc(100% - 4px);
+    border-left: 2px solid  #12330c;
+    border-right: 2px solid  #12330c;
+    border-top: 2px solid  #12330c;
+    border-bottom: 2px solid  #12330c;
+    z-index: 1;
+  }
+  
+  .scoreboard:after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 0px;
+    display: block;
+    width: calc(100% - 4px);
+    height: calc(100% - 20px);
+    border-left: 2px solid  #12330c;
+    border-right: 2px solid  #12330c;
+    z-index: 1;
+  }
+  
+  .score-title {
+    margin: 0 0 0;
+    font-family: "VT323", monospace;
+    font-size: 2em;
+    text-align: center;
+    color: #359a25;
+    text-shadow: 2px 2px #e5fdd9;
+  }
+  
+  .top-score {
+    text-align: center;
+    margin: 0px 20px;
+    font-size: 20px;
+    color: #533c44;
+  }
+  
+  .score-list {
+    position: relative;
+    height: 250px;
+    max-height: 250px;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    z-index: 2;
+  }
+  
+  .score-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 20px;
+    list-style: none;
+    font-size: 2em;
+    font-weight: bolder;
+    color: white;
+    text-shadow: 1px 1px 1px black;
+  }
+
+
+  .my-score {
+    display: none;
+    font-family: "VT323", monospace;
+    font-size: 2em;
+    font-weight: bold;
+    text-align: left;
+    color: #359a25;
+    text-shadow: 3px 3px #e5fdd9;
+    
+  }
+
+  /*My Score 部分*/
+  #score-label1{ 
+    font-size: 2.5em;
+    text-align: left;
+  }
+
+  canvas {
+    border: 15px solid #94d46f;
+    position: relative;
+    z-index: -999;
+  }
+  
+  .nickname {
+    display: flex;
+    text-align: center;
+  }
+  
+  .my-info {
+    position: absolute;
+    top: 16px;
+    left: 800px;
+    justify-content: center;
+    width: 500px;
+  }
+
+  input {
+    font-family: inherit;
+    padding: 6px 8px;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: center;
+    width: 120px;
+    color: #533c44;
+  }
+  
+  input:focus {
+    outline: none;
+  }
+  
+  button {
+    display: inline-block;
+    padding: 10px 23.3px;
+    border: 2px solid white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-family: "VT323", monospace;
+    font-size: 16px;
+    font-weight: bold;
+    color: #d9ffc3;
+    background-color: #016601;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #bfe3ac;
+  }
+  
+  button:active {
+    background-color: #bfe3ac;
+  }
+  
+  .instruction {
+    float: left;
+    position: absolute;
+    width: 1000px;
+    font-family: "VT323", monospace;
+    font-size: 80px;
+    font-weight: bold;
+    color: #359a25;
+    text-shadow: 4px 4px #e5fdd9;
+    left: 60px;
+    top: 200px;
+  }

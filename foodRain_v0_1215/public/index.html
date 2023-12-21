@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Rain</title>
+	<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io(); //创建一个io名叫socket
+		//var socket = io('http://localhost:3000/');
+    </script>
+	<script defer src="p5.sound.min.js" crossorigin="anonymous"></script>
+	<script src="p5.min.js" crossorigin="anonymous"></script>
+	<script src="ml5.min.js" crossorigin="anonymous" type="text/javascript"></script> 
+	<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/addons/p5.sound.min.js"></script> -->
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/addons/p5.sound.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script> -->
+	<style>
+		body {
+			margin:0;
+			padding:0;
+			overflow: hidden;
+		}
+		canvas {
+			margin:auto;
+		}
+	</style>
+</head>
+
+<body>
+	
+	<div class="my-info">
+		<div class="nickname">
+			<input id="nickname-input" maxlength="18"></input>
+			<button id="update-nickname">Update Nickname</button>
+		  </div>
+		<div class="my-score">
+			<div id="score-label1">My Score: <span id="score1">0</span></div>
+			<div id="score-label2">Fruit 🍊: <span id="score2">0</span></div>
+			<div id="score-label3">Dessert 🍰: <span id="score3">0</span></div>
+		</div>
+	</div>
+
+	<div class="instruction">
+		Update your nickname to start the game🎮. 
+		Catch fruits🍊, 
+		not dessert🍰!
+	</div>
+
+	<div class="scoreboard">
+		<h2 class="score-title">Live Leaderboard</h2>
+		<div class="top-score">
+		<p id="top-label"></p>
+		</div>
+		<ul id="score-list" class="score-list">
+		</ul>
+	</div>
+
+	<!-- <audio preload="auto">  
+		<source src="./2019-01-02_-_8_Bit_Menu_-_David_Renda_-_FesliyanStudios.com.mp3" type="audio/mp3">   
+	</audio> -->
+
+	<script type="text/javascript" src="./src/sketch.js"></script>
+	<script type="text/javascript" src="./src/snowflake.js"></script>
+	<link rel="stylesheet" href="../src/style.css"></link>
+</body>
+</html>

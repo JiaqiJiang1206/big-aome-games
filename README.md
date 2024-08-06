@@ -5,9 +5,9 @@ Welcome to our project, where we've developed three engaging and interactive gam
 
 ## 📋 Overview
 
-This web-based application, integrated with Open Broadcaster Software (OBS), offers a set of gamified experiences that can be streamed as a virtual camera to any online meeting platform (e.g., Zoom, VooV Meeting). As online meeting software evolves, these interactions have the potential to become add-on applications or integrated features, providing new ways for users to stay active and engaged.
+This web-based application, integrated with Open Broadcaster Software (OBS), offers a set of gamified experiences that can be streamed as a virtual camera to any online meeting platform (e.g., Zoom, VooV Meeting). As online meeting software evolves, these interactions have the potential to become add-on applications or integrated features, providing new ways for users to stay active and engaged. 
 
-![alt text](image.png)
+![alt text](image-1.png)
 
 ## 🎲 Games
 

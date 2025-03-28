@@ -33,6 +33,7 @@ export class PoseData {
     this.nose = this.extract(landmarks[0]);
 
     // 可扩展：肘、手腕、角度、朝向等
+    // TODO 需要重定义，现在的可扩展性太低
   }
 
   extract(landmark) {

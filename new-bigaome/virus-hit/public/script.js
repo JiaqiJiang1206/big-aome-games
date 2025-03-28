@@ -3,11 +3,11 @@ import {
   FilesetResolver,
 } from 'https://cdn.skypack.dev/@mediapipe/tasks-vision@0.10.0';
 
-import { CONFIG } from './consts.js';
-import { PoseData } from './poseData.js';
+import { CONFIG } from './src/consts.js';
+import { PoseData } from './src/poseData.js';
 import { Player } from './player.js';
-import { SocketManager } from './socketManager.js';
-import { Tower } from './Tower.js';
+import { SocketManager } from './src/socketManager.js';
+import { Tower } from './src/tower.js';
 
 // ========== 全局变量 ==========
 let poseLandmarker = undefined;
@@ -35,29 +35,6 @@ let flagKeys = ['red', '94,203,246', 'yellow', 'green'];
 
 // 加载资源
 // main.js 顶部
-const images = {};
-
-function preloadImages() {
-  const imgList = {
-    tower: '../image/tower.png',
-    bomb: '../image/bomb.png',
-    torch: '../image/Torch.gif',
-    changtiao: '../image/changtiao.png',
-    redFlag: '../image/redFlag.gif',
-    blueFlag: '../image/94,203,246Flag.gif',
-    yellowFlag: '../image/yellowFlag.gif',
-    greenFlag: '../image/greenFlag.gif',
-    virus: '../image/walk.gif',
-    shoulder: '../image/shoulder.png',
-  };
-
-  for (const [key, src] of Object.entries(imgList)) {
-    const img = new Image();
-    img.src = src;
-    images[key] = img;
-  }
-}
-preloadImages();
 const newFont = new FontFace('VT323', 'url(./vt323.ttf)');
 
 newFont.load().then((loadedFont) => {
@@ -134,48 +111,7 @@ function onRoleAssigned(data) {
 }
 
 socketManager = new SocketManager('http://127.0.0.1:3002', onRoleAssigned);
-
-// 接收服务器状态更新
-socketManager.socket.on('serverState', (state) => {
-  virusHP = state.virusHP;
-});
-
-socketManager.socket.on('clientNumbers', (clients) => {
-  towers = [];
-
-  const assistants = clients.slice(1); // 所有助手
-  const assistantCount = assistants.length;
-
-  assistants.forEach((c, i) => {
-    const x = (canvasElement.width / (assistantCount + 1)) * (i + 1); // ✅ 平均分布
-    const y = canvasElement.height * 0.8;
-    towers.push(
-      new Tower(c, x, y, {
-        color: color[i % color.length], // 使用你预设的颜色
-        flagKey: flagKeys[i % flagKeys.length], // 对应旗帜图片 key
-        playerNumber: i + 1,
-      })
-    ); // Tower 的 id 用 socket.id
-  });
-});
-
-socketManager.socket.on('addBullet0', (assistantId) => {
-  const tower = towers.find((t) => t.id === assistantId);
-  console.log('📦 收到 addBullet0 for', assistantId, '找到塔:', tower);
-  if (tower) tower.bulletCount++;
-});
-
-socketManager.socket.on('reduceBullet0', (assistantId) => {
-  const tower = towers.find((t) => t.id === assistantId);
-  if (tower) tower.bulletCount = Math.max(0, tower.bulletCount - 1);
-});
-
-socketManager.socket.on('dis0', ([assistantId, distance]) => {
-  const tower = towers.find((t) => t.id === assistantId);
-  if (tower) {
-    tower.shoulderDistance = distance;
-  }
-});
+// TODO 调用相应的socketManager方法来更新
 
 // ========== 每帧识别逻辑 ==========
 let lastVideoTime = -1;
@@ -204,77 +140,14 @@ async function predictWebcam() {
           me.updatePose(poseData);
 
           if (me.role === 'assistant') {
-            poseData.drawShoulder(canvasCtx);
-            socketManager.sendShoulderDistance(me.shoulderDistance);
-
-            // 👉 可视化肩膀距离（调试用）
-            // canvasCtx.fillStyle = 'white';
-            // canvasCtx.font = '56px VT323';
-            // canvasCtx.fillText(
-            //   `Distance: ${Math.floor(me.shoulderDistance)}`,
-            //   20,
-            //   20
-            // );
-
-            // 👉 显示子弹数量
-            // canvasCtx.fillStyle = 'orange';
-            canvasCtx.font = '32px VT323';
-            const myTower = towers.find((t) => t.id === me.id);
-            // console.log(towers);
-            if (myTower) {
-              canvasCtx.fillStyle = myTower.color;
-              // canvasCtx.fillText(`💣 Bullets: ${myTower.bulletCount}`, 20, 45);
-
-              canvasCtx.font = '86px VT323, monospace';
-              canvasCtx.fillText(`Player ${myTower.playerNumber}`, 35, 80);
-            }
-
-            // ✅ 判定夹紧 -> 加子弹 -> 通知服务器
-            if (me.canProduceBullet && !me.prevCanProduceBullet) {
-              me.produceBullet();
-              socketManager.sendAddBullet();
-            }
-
-            if (me.canProduceBullet) {
-              // ✅ 加个视觉反馈（比如画圈或变色）
-              canvasCtx.strokeStyle = 'lime';
-              canvasCtx.beginPath();
-              canvasCtx.arc(
-                (me.poseData.leftShoulder.x + me.poseData.rightShoulder.x) / 2,
-                (me.poseData.leftShoulder.y + me.poseData.rightShoulder.y) / 2,
-                80,
-                0,
-                2 * Math.PI
-              );
-              canvasCtx.stroke();
-            }
+            // TODO 补充逻辑
           }
 
           if (me.role === 'hitter') {
             drawTowers();
             drawHUD();
-            updateAndDrawBullets(); // 💥 画子弹
-            poseData.drawNose(canvasCtx);
-            if (me.role === 'hitter') {
-              for (const tower of towers) {
-                if (tower.isNoseNear(me.poseData.nose)) {
-                  const fired = tower.fire();
-                  if (fired) {
-                    socketManager.sendReduceBullet(tower.id);
-                    virusHP = Math.max(0, virusHP - 1); // 扣血
-
-                    // 添加子弹动画
-                    bullets.push({
-                      x: tower.x,
-                      y: tower.y - 100,
-                      targetX: virusPosition.x,
-                      targetY: virusPosition.y,
-                      step: 0,
-                    });
-                  }
-                }
-              }
-            }
+            updateAndDrawBullets();
+            // TODO 补充逻辑
           }
         }
       }
@@ -288,7 +161,8 @@ async function predictWebcam() {
   }
 }
 
-// 功能函数
+// TODO 功能函数放到类中或者工具函数文件中，
+// 比如 drawTowers 就应该是 Tower 类的一个方法
 
 function drawTowers() {
   for (const tower of towers) {

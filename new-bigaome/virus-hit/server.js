@@ -1,12 +1,14 @@
+// server.js
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3002;
 const server = app.listen(PORT, () => {
-  console.log(`Socket server running on port ${PORT}`);
+  console.log(`🚀 Socket server running on port ${PORT}`);
 });
+
 const io = require('socket.io')(server, {
   cors: {
-    origin: '*', // 或者指定你的前端地址，如 'http://localhost:3000'
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
@@ -14,75 +16,75 @@ const io = require('socket.io')(server, {
 // 静态资源
 app.use(express.static('public'));
 
-// 保存客户端 ID
-let clientIds = [];
+// 所有连接的客户端状态
+let clients = {}; // { socketId: { id, role, bulletCount, shoulderDistance } }
 
-// 服务器端状态
+// 服务端统一状态
 let serverState = {
-  virusHP: 100, // 病毒血量
+  virusHP: 100,
 };
 
-// 工具函数：广播所有客户端状态
+// 向所有客户端广播最新状态
 function broadcastClientStates() {
-  io.emit('clientNumbers', clientIds); // 发送完整的 ID 数组，而不是长度
-  clientIds.forEach((clientId, index) => {
-    const role = index === 0 ? 'hitter' : 'assistant';
-    io.to(clientId).emit('clientInfo', {
-      id: clientId,
-      index: index,
-      role: role,
-    });
-  });
-  // 广播服务器状态
+  const summary = Object.values(clients).map(
+    ({ id, role, bulletCount, shoulderDistance }) => ({
+      id,
+      role,
+      bulletCount,
+      shoulderDistance,
+    })
+  );
+
+  io.emit('clientSummary', summary);
   io.emit('serverState', serverState);
 }
 
-// 连接事件
+// 新客户端连接
 io.on('connection', (socket) => {
   const id = socket.id;
-  clientIds.push(id);
-  console.log(`Client connected: ${id}`);
+  const role = Object.keys(clients).length === 0 ? 'hitter' : 'assistant';
+
+  clients[id] = {
+    id,
+    role,
+    bulletCount: 0,
+    shoulderDistance: 0,
+  };
+
+  console.log(`🟢 Client connected: ${id} (${role})`);
   broadcastClientStates();
 
-  // 客户端断开连接
-  socket.on('disconnect', () => {
-    const index = clientIds.indexOf(socket.id);
-    if (index !== -1) {
-      clientIds.splice(index, 1);
-      console.log(`Client disconnected: ${socket.id}`);
+  // 客户端主动同步自身状态
+  socket.on('syncState', (data) => {
+    if (!clients[id]) return;
+
+    clients[id] = {
+      ...clients[id],
+      ...data, // e.g. bulletCount, shoulderDistance
+    };
+
+    broadcastClientStates();
+  });
+
+  // 客户端请求更新病毒血量（e.g. 击中）
+  socket.on('updateVirusHP', (newHP) => {
+    serverState.virusHP = newHP;
+    broadcastClientStates();
+  });
+
+  // 发射子弹（用于同步动画或触发音效）
+  socket.on('fireBullet', (assistantId) => {
+    const target = Object.values(clients).find((c) => c.id === assistantId);
+    if (target) {
+      target.bulletCount = Math.max(0, target.bulletCount - 1);
       broadcastClientStates();
     }
   });
 
-  // Assistant 发出 addBullet 请求
-  socket.on('addBullet', (assistantIndex) => {
-    const hitterId = clientIds[0];
-    if (hitterId) {
-      io.to(hitterId).emit('addBullet0', assistantIndex);
-    }
+  // 客户端断开
+  socket.on('disconnect', () => {
+    delete clients[id];
+    console.log(`🔴 Client disconnected: ${id}`);
+    broadcastClientStates();
   });
-
-  // Hitter 或系统要求 Assistant 减少子弹
-  socket.on('reduceBullet', (index) => {
-    if (clientIds[index]) {
-      io.to(clientIds[index]).emit('reduceBullet0', index);
-    }
-  });
-
-  // Assistant 提交摧毁信息
-  socket.on('dis', (data) => {
-    const hitterId = clientIds[0];
-    if (hitterId) {
-      io.to(hitterId).emit('dis0', data);
-    }
-  });
-
-  // 处理病毒血量更新
-  socket.on('updateVirusHP', (newHP) => {
-    serverState.virusHP = newHP;
-    io.emit('serverState', serverState);
-  });
-
-  // 可扩展：客户端请求角色切换
-  // socket.on("requestRoleSwitch", () => { ... });
 });

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virus Hit</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  </head>
+  <body>
+    <div id="liveView" class="videoView">
+      <div style="position: relative">
+        <video
+          id="webcam"
+          style="
+            width: 1280px;
+            height: 720px;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+          "
+          autoplay
+          playsinline
+        ></video>
+        <canvas
+          class="output_canvas"
+          id="output_canvas"
+          width="1280"
+          height="720"
+          style="position: absolute; left: 0px; top: 0px"
+        ></canvas>
+      </div>
+    </div>
+
+    <script src="script.js" type="module"></script>
+  </body>
+</html>

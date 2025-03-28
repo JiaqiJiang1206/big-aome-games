@@ -1,0 +1,8 @@
+export const CONFIG = {
+  INTERACTION_DISTANCE: 100, // 鼻子与雪霜元素交互的距离阈值
+
+  VIDEO_WIDTH: 1280,
+  VIDEO_HEIGHT: 720,
+
+  FROST_UPDATE_INTERVAL: 0.3,
+};

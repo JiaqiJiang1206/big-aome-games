@@ -5,7 +5,7 @@ import {
 
 import { CONFIG } from './src/consts.js';
 import { PoseData } from './src/poseData.js';
-import { Player } from './player.js';
+import { PlayerFactory } from './src/player.js';
 import { SocketManager } from './src/socketManager.js';
 import { Tower } from './src/tower.js';
 
@@ -35,7 +35,7 @@ let flagKeys = ['red', '94,203,246', 'yellow', 'green'];
 
 // 加载资源
 // main.js 顶部
-const newFont = new FontFace('VT323', 'url(./vt323.ttf)');
+const newFont = new FontFace('VT323', 'url(./fonts/vt323.ttf)');
 
 newFont.load().then((loadedFont) => {
   document.fonts.add(loadedFont);
@@ -106,8 +106,9 @@ function enableCam() {
 
 // ========== 初始化 Socket ==========
 function onRoleAssigned(data) {
-  me = new Player(data.id, data.role);
-  console.log(`🎮 我是 ${me.role}, ID: ${me.id}`);
+  console.log(data);
+  me = PlayerFactory.createPlayer(data);
+  console.log(me);
 }
 
 socketManager = new SocketManager('http://127.0.0.1:3002', onRoleAssigned);
@@ -144,7 +145,6 @@ async function predictWebcam() {
           }
 
           if (me.role === 'hitter') {
-            drawTowers();
             drawHUD();
             updateAndDrawBullets();
             // TODO 补充逻辑
@@ -164,118 +164,6 @@ async function predictWebcam() {
 // TODO 功能函数放到类中或者工具函数文件中，
 // 比如 drawTowers 就应该是 Tower 类的一个方法
 
-function drawTowers() {
-  for (const tower of towers) {
-    const x = tower.x;
-    const y = tower.y;
-
-    // 旗帜图片
-    let flagImg = document.getElementById(`flag-${tower.id}`);
-    if (!flagImg) {
-      flagImg = document.createElement('img');
-      flagImg.id = `flag-${tower.id}`;
-      flagImg.src = `../image/${tower.flagKey}Flag.gif`;
-      flagImg.style.position = 'absolute';
-      document.body.appendChild(flagImg);
-    }
-    flagImg.style.width = '100px';
-    flagImg.style.height = '150px';
-    flagImg.style.left = `${x + 80}px`;
-    flagImg.style.top = `${y - 160}px`;
-    flagImg.style.zIndex = '1000';
-
-    // 塔图片
-    let towerImg = document.getElementById(`tower-${tower.id}`);
-    if (!towerImg) {
-      towerImg = document.createElement('img');
-      towerImg.id = `tower-${tower.id}`;
-      towerImg.src = '../image/tower.png';
-      towerImg.style.position = 'absolute';
-      document.body.appendChild(towerImg);
-    }
-    towerImg.style.width = '200px';
-    towerImg.style.height = '200px';
-    towerImg.style.left = `${x - 40}px`;
-    towerImg.style.top = `${y - 60}px`;
-    towerImg.style.zIndex = '1000';
-
-    // 炸弹图片
-    let bombImg = document.getElementById(`bomb-${tower.id}`);
-    if (!bombImg) {
-      bombImg = document.createElement('img');
-      bombImg.id = `bomb-${tower.id}`;
-      bombImg.src = '../image/bomb.png';
-      bombImg.style.position = 'absolute';
-      document.body.appendChild(bombImg);
-    }
-    bombImg.style.width = '70px';
-    bombImg.style.height = '70px';
-    bombImg.style.left = `${x - 25}px`;
-    bombImg.style.top = `${y - 130}px`;
-    bombImg.style.zIndex = '1000';
-
-    // 子弹数量文字
-
-    canvasCtx.font = '56px VT323';
-    canvasCtx.fillText('x' + tower.bulletCount, x + 35, y - 80);
-
-    // 能量条
-    let barImg = document.getElementById(`bar-${tower.id}`);
-    if (!barImg) {
-      barImg = document.createElement('img');
-      barImg.id = `bar-${tower.id}`;
-      barImg.src = '../image/changtiao.png';
-      barImg.style.position = 'absolute';
-      document.body.appendChild(barImg);
-    }
-    barImg.style.width = '200px';
-    barImg.style.height = '40px';
-    barImg.style.left = `${x - 34}px`;
-    barImg.style.top = `${y + 100}px`;
-    barImg.style.zIndex = '1000';
-
-    // 肩膀图片
-    const shoulderDis = tower.shoulderDistance || 600;
-    const spacing = Math.max(30, Math.min(200, (shoulderDis - 200) / 4));
-
-    const circleY = y + 125;
-    const circleXLeft = x + 65 - spacing / 2;
-    const circleXRight = x + 65 + spacing / 2;
-
-    // 左肩图片
-    let leftShoulderImg = document.getElementById(`shoulder-left-${tower.id}`);
-    if (!leftShoulderImg) {
-      leftShoulderImg = document.createElement('img');
-      leftShoulderImg.id = `shoulder-left-${tower.id}`;
-      leftShoulderImg.src = '../image/shoulder.png';
-      leftShoulderImg.style.position = 'absolute';
-      document.body.appendChild(leftShoulderImg);
-    }
-    leftShoulderImg.style.width = '115px';
-    leftShoulderImg.style.height = '115px';
-    leftShoulderImg.style.left = `${circleXLeft - 57.5}px`;
-    leftShoulderImg.style.top = `${circleY - 57.5}px`;
-    leftShoulderImg.style.zIndex = '1000';
-
-    // 右肩图片
-    let rightShoulderImg = document.getElementById(
-      `shoulder-right-${tower.id}`
-    );
-    if (!rightShoulderImg) {
-      rightShoulderImg = document.createElement('img');
-      rightShoulderImg.id = `shoulder-right-${tower.id}`;
-      rightShoulderImg.src = '../image/shoulder.png';
-      rightShoulderImg.style.position = 'absolute';
-      document.body.appendChild(rightShoulderImg);
-    }
-    rightShoulderImg.style.width = '115px';
-    rightShoulderImg.style.height = '115px';
-    rightShoulderImg.style.left = `${circleXRight - 57.5}px`;
-    rightShoulderImg.style.top = `${circleY - 57.5}px`;
-    rightShoulderImg.style.zIndex = '1000';
-  }
-}
-
 function drawHUD() {
   if (me?.role === 'hitter') {
     // 文字说明
@@ -290,7 +178,7 @@ function drawHUD() {
     if (!virusImg) {
       virusImg = document.createElement('img');
       virusImg.id = 'virus';
-      virusImg.src = '../image/walk.gif';
+      virusImg.src = './image/walk.gif';
       virusImg.style.position = 'absolute';
       document.body.appendChild(virusImg);
     }
@@ -309,7 +197,7 @@ function drawHUD() {
 
 function updateAndDrawBullets() {
   const speed = 0.02; // 控制子弹移动速度
-  const bombImg = images.bomb;
+  const bombImg = 'image/bomb.png';
 
   for (let i = bullets.length - 1; i >= 0; i--) {
     const b = bullets[i];
